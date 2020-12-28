@@ -25,6 +25,11 @@ namespace identity_server.web.api.Controllers
             this.mapper = mapper;
         }
 
+        /// <summary>
+        /// End-point for create new user
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         [Route("AddUser")]
         [HttpPost]
         public IActionResult AddUser([FromBody] UserData user)
@@ -41,6 +46,57 @@ namespace identity_server.web.api.Controllers
             }
         }
 
+        /// <summary>
+        /// Delete user by id
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        [Route("DeleteUser")]
+        [HttpDelete]
+        public IActionResult DeleteUser([FromBody] Guid userId)
+        {
+            if (Guid.Empty != userId)
+            {
+                authService.DeleteUser(userId);
+                return Ok();
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
+
+        /// <summary>
+        /// Get user by id
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        [Route("GetUser")]
+        [HttpGet]
+        public IActionResult GetUser([FromBody] Guid userId)
+        {
+            if (Guid.Empty != userId)
+            {
+                authService.GetUser(userId);
+                return Ok();
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
+
+        /// <summary>
+        /// Get list of users
+        /// </summary>
+        /// <returns></returns>
+        [Route("GetUsers")]
+        [HttpGet]
+        public IActionResult GetUsers()
+        {
+            var users = authService.GetUsers();
+            return Ok(users);
+        }
 
     }
 }
