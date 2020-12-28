@@ -10,7 +10,7 @@ namespace identity_server.web.BL.Services
         void AddUser(UserBL user);
         UserView GetUser(Guid id);
         UserView GetUsers();
-        UserView DeleteUser(Guid id);
+        void DeleteUser(Guid id);
         UserView UpdateUser(UserBL user);
     }
 }

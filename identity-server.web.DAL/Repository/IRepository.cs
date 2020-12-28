@@ -7,11 +7,11 @@ namespace identity_server.web.DAL.Repository
 {
     public interface IRepository
     {
-        void AddUser();
+        void AddUser(User user);
         IEnumerable<User> GetUsers();
-        User GetUser();
+        User GetUser(Guid userId);
 
-        User UpdateUser();
-        void DeleteUser();
+        User UpdateUser(User user);
+        void DeleteUser(Guid userId);
     }
 }

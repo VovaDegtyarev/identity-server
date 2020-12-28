@@ -1,4 +1,7 @@
-﻿using identity_server.web.BL.Models;
+﻿using AutoMapper;
+using identity_server.web.BL.Models;
+using identity_server.web.DAL.Models;
+using identity_server.web.DAL.Repository;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,14 +10,24 @@ namespace identity_server.web.BL.Services
 {
     public class AuthService : IAuthService
     {
-        public void AddUser(UserBL user)
+        private readonly IRepository repository;
+        private readonly IMapper mapper;
+
+        public AuthService(IRepository repository, IMapper mapper)
         {
-            throw new NotImplementedException();
+            this.repository = repository;
+            this.mapper = mapper;
         }
 
-        public UserView DeleteUser(Guid id)
+        public void AddUser(UserBL user)
         {
-            throw new NotImplementedException();
+            var _user = mapper.Map<User>(user);
+            repository.AddUser(_user);
+        }
+
+        public void DeleteUser(Guid id)
+        {
+            repository.DeleteUser(id);
         }
 
         public UserView GetUser(Guid id)

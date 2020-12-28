@@ -1,11 +1,13 @@
 using AutoMapper;
 using identity_server.web.api.Mapper;
 using identity_server.web.BL.Services;
+using identity_server.web.DAL.Context;
 using identity_server.web.DAL.Repository;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -37,10 +39,16 @@ namespace identity_server.web.api
             var mappingConfig = new MapperConfiguration(mc =>
             {
                 mc.AddProfile(new ViewMapper());
+                mc.AddProfile(new identity_server.web.BL.Mapper.ViewMapper());
             });
 
             IMapper mapper = mappingConfig.CreateMapper();
             services.AddSingleton(mapper);
+
+            // получаем строку подключения из файла конфигурации
+            string connection = Configuration.GetConnectionString("DefaultConnection");
+            // добавляем контекст userDbcontext в качестве сервиса в приложение
+            services.AddDbContext<UserDbContext>(options => options.UseSqlServer(connection));
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
