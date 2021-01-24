@@ -12,6 +12,8 @@ namespace identity_server.web.BL.Mapper
         public ViewMapper()
         {
             CreateMap<UserBL, User>();
+            CreateMap<User, UserBL>();
+            CreateMap<User, UserView>();
         }
     }
 }

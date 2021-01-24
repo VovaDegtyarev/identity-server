@@ -1,5 +1,6 @@
 using AutoMapper;
 using identity_server.web.api.Mapper;
+using identity_server.web.BL.Common;
 using identity_server.web.BL.Services;
 using identity_server.web.DAL.Context;
 using identity_server.web.DAL.Repository;
@@ -35,6 +36,7 @@ namespace identity_server.web.api
 
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IRepository, Repository>();
+            services.AddScoped<IHashing, Hashing>();
 
             var mappingConfig = new MapperConfiguration(mc =>
             {

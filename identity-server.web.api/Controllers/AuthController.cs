@@ -77,8 +77,8 @@ namespace identity_server.web.api.Controllers
         {
             if (Guid.Empty != userId)
             {
-                authService.GetUser(userId);
-                return Ok();
+                var user = authService.GetUser(userId);
+                return Ok(user);
             }
             else
             {
@@ -97,6 +97,24 @@ namespace identity_server.web.api.Controllers
             var users = authService.GetUsers();
             return Ok(users);
         }
+
+
+        [Route("Login")]
+        [HttpPost]
+        public IActionResult Login([FromBody] UserData user)
+        {
+            if (user != null)
+            {
+                var _user = mapper.Map<UserBL>(user);
+                authService.Login(_user);
+                return Ok();
+            } 
+            else
+            {
+                return BadRequest();
+            }
+        }
+
 
     }
 }
