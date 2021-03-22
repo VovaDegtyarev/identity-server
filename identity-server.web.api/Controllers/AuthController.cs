@@ -3,6 +3,7 @@ using identity_server.web.api.Models;
 using identity_server.web.BL.Models;
 using identity_server.web.BL.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,11 +19,13 @@ namespace identity_server.web.api.Controllers
 
         private readonly IAuthService authService;
         private readonly IMapper mapper;
+        private readonly ILogger<AuthController> logger;
 
-        public AuthController(IAuthService authService, IMapper mapper)
+        public AuthController(IAuthService authService, IMapper mapper, ILogger<AuthController> logger)
         {
             this.authService = authService ?? throw new ArgumentNullException(nameof(authService));
             this.mapper = mapper;
+            this.logger = logger;
         }
 
         /// <summary>
@@ -73,15 +76,17 @@ namespace identity_server.web.api.Controllers
         /// <returns></returns>
         [Route("GetUser")]
         [HttpGet]
-        public IActionResult GetUser([FromBody] Guid userId)
+        public IActionResult GetUser(Guid userId)
         {
             if (Guid.Empty != userId)
             {
                 var user = authService.GetUser(userId);
+                logger.LogInformation("i want get user");
                 return Ok(user);
             }
             else
             {
+                logger.LogError("very bad request");
                 return BadRequest();
             }
         }
@@ -98,6 +103,20 @@ namespace identity_server.web.api.Controllers
             return Ok(users);
         }
 
+
+        /// <summary>
+        /// Update user
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        [Route("Update")]
+        [HttpPatch]
+        public IActionResult UpdateUser([FromBody] UserData user)
+        {
+            var _user = mapper.Map<UserBL>(user);
+            authService.UpdateUser(_user);
+            return Ok(_user);
+        }
 
         [Route("Login")]
         [HttpPost]

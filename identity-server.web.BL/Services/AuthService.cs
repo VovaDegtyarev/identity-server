@@ -29,8 +29,7 @@ namespace identity_server.web.BL.Services
             _user.Id = Guid.NewGuid();
 
             _user.Hash = hashing.GetHashFromPassword(_user.Password);
-            _user.Password = "emptyPassword";
-
+            //_user.Password = "emptyPassword";
 
             repository.AddUser(_user);
         }
@@ -44,22 +43,27 @@ namespace identity_server.web.BL.Services
         {
             var user = repository.GetUser(id);
             var _user = mapper.Map<UserView>(user);
+
             return _user;
         }
 
         public UserView GetUsers()
         {
-            throw new NotImplementedException();
+            var list = repository.GetUsers();
+            var listOfUsers = mapper.Map<UserView>(list);
+
+            return listOfUsers;
         }
 
         public void Login(UserBL user)
         {
             var _user = mapper.Map<User>(user);
-            var u = repository.GetUser(_user.Id);
+            var us = repository.GetUser(_user.Id);
 
-            bool isValidPassword = BCrypt.Net.BCrypt.Verify(_user.Password, u.Password);
+            //bool isValidPassword = BCrypt.Net.BCrypt.Verify(_user.Password, u.Password);
+            bool isV = hashing.isValidPassword(_user.Password, us.Hash);
 
-            if (isValidPassword)
+            if (isV)
             {
                 // TODO: token!
             } 
@@ -71,7 +75,9 @@ namespace identity_server.web.BL.Services
 
         public UserView UpdateUser(UserBL user)
         {
-            throw new NotImplementedException();
+            var newUser = mapper.Map<User>(user);
+            repository.UpdateUser(newUser);
+            return null;
         }
     }
 }
