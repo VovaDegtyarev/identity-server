@@ -3,8 +3,12 @@ using identity_server.web.BL.Common;
 using identity_server.web.BL.Models;
 using identity_server.web.DAL.Models;
 using identity_server.web.DAL.Repository;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 
 namespace identity_server.web.BL.Services
@@ -14,12 +18,14 @@ namespace identity_server.web.BL.Services
         private readonly IRepository repository;
         private readonly IMapper mapper;
         private readonly IHashing hashing;
+        private readonly IOptions<AuthOptions> authOptions;
 
-        public AuthService(IRepository repository, IMapper mapper, IHashing hashing)
+        public AuthService(IRepository repository, IMapper mapper, IHashing hashing, IOptions<AuthOptions> authOptions)
         {
             this.repository = repository;
             this.mapper = mapper;
             this.hashing = hashing;
+            this.authOptions = authOptions;
         }
 
         public void AddUser(UserBL user)
@@ -55,20 +61,23 @@ namespace identity_server.web.BL.Services
             return listOfUsers;
         }
 
-        public void Login(UserBL user)
+        public string Login(UserBL user)
         {
             var _user = mapper.Map<User>(user);
             var us = repository.GetUser(_user.Id);
 
             //bool isValidPassword = BCrypt.Net.BCrypt.Verify(_user.Password, u.Password);
-            bool isV = hashing.isValidPassword(_user.Password, us.Hash);
+            bool isPasswordValid = hashing.isValidPassword(_user.Password, us.Hash);
 
-            if (isV)
+            if (isPasswordValid)
             {
                 // TODO: token!
+                var token = GenerateJWT(us);
+                return token;
             } 
             else
             {
+                return null;
                 // TODO: что-то другое
             }
         }
@@ -78,6 +87,26 @@ namespace identity_server.web.BL.Services
             var newUser = mapper.Map<User>(user);
             repository.UpdateUser(newUser);
             return null;
+        }
+
+
+        private string GenerateJWT(User user)
+        {
+            var authParams = authOptions.Value;
+
+            var securityKey = authParams.GetSymmetricSecurityKey();
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+            var claims = new List<Claim>()
+            {
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim("role", user.Role.ToString())
+            };
+
+            var token = new JwtSecurityToken(authParams.Issuer, authParams.Audience, claims, expires: DateTime.Now.AddSeconds(authParams.TokenLifeTime), signingCredentials: credentials);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }

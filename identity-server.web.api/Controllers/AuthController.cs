@@ -125,8 +125,8 @@ namespace identity_server.web.api.Controllers
             if (user != null)
             {
                 var _user = mapper.Map<UserBL>(user);
-                authService.Login(_user);
-                return Ok();
+                var token = authService.Login(_user);
+                return Ok(new { access_token = token });             
             } 
             else
             {
