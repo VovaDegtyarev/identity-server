@@ -38,6 +38,9 @@ namespace identity_server.web.api
             services.AddScoped<IRepository, Repository>();
             services.AddScoped<IHashing, Hashing>();
 
+            var authOptionsConfiguration = Configuration.GetSection("Auth");
+            services.Configure<AuthOptions>(authOptionsConfiguration);
+
             var mappingConfig = new MapperConfiguration(mc =>
             {
                 mc.AddProfile(new ViewMapper());
@@ -51,6 +54,14 @@ namespace identity_server.web.api
             string connection = Configuration.GetConnectionString("DefaultConnection");
             // добавляем контекст userDbcontext в качестве сервиса в приложение
             services.AddDbContext<UserDbContext>(options => options.UseSqlServer(connection));
+
+            services.AddCors(options => 
+            {
+                options.AddDefaultPolicy(builder => 
+                {
+                    builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+                });
+            });
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
@@ -72,6 +83,8 @@ namespace identity_server.web.api
             
 
             app.UseHttpsRedirection();
+
+            app.UseCors();
 
             app.UseRouting();
 

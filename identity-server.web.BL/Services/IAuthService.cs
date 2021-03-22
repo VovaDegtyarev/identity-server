@@ -13,6 +13,6 @@ namespace identity_server.web.BL.Services
         void DeleteUser(Guid id);
         UserView UpdateUser(UserBL user);
 
-        void Login(UserBL user);
+        string Login(UserBL user);
     }
 }
